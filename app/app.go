@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"widgetFactory/app/handler"
+	"widgetFactory/app/repository"
 	"widgetFactory/config"
 	"github.com/gorilla/mux"
 )
@@ -18,6 +19,8 @@ func (a *App) Initialize(Config *config.Config) {
 	a.Auth = Config.Auth
 	a.WidgetDb = Config.WidgetDBConfig
 	a.UserDb = Config.UserDBConfig
+	repository.CreateDatabaseIfNotExists(Config.UserDBConfig)
+	repository.CreateDatabaseIfNotExists(Config.WidgetDBConfig)
 	a.Router = mux.NewRouter()
 	a.setRouters()
 }

@@ -8,11 +8,10 @@ type Config struct {
 }
 
 type DBConfig struct {
-	Username string
-	Password string
 	Name string
 	Port int
 	Host string
+	Protocol string
 }
 
 type Auth struct {
@@ -23,18 +22,16 @@ func GetConfig() *Config {
 
 	return &Config{
 		UserDBConfig: &DBConfig{
-			Username: "",
-			Password: "",
 			Name: "users",
 			Port: 5984,
 			Host: "127.0.0.1",
+			Protocol: "http",
 		},
 		WidgetDBConfig: &DBConfig{
-			Username: "",
-			Password: "",
 			Name: "widgets",
 			Port: 5984,
 			Host: "127.0.0.1",
+			Protocol: "http",
 		},
 		Port: ":8000",
 		Auth: &Auth {

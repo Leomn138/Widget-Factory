@@ -9,9 +9,9 @@ import (
 	"bytes"
 	"widgetFactory/app/common"
 	"widgetFactory/config"
+	"log"
 )
 const (
-
 	allDocsSufix = "_all_docs?include_docs="
 )
 
@@ -94,10 +94,18 @@ func UpdateDocument(dbConfig *config.DBConfig, id string, newDocumentMap map[str
 	return PutDocument(url, document, revision)
 }
 
+func CreateDatabaseIfNotExists(dbConfig *config.DBConfig){
+	url := BuildUrl(dbConfig)
+	log.Print(url)
+	response := PutDocument(url, []byte{}, "")
+	log.Print(response.Message)
+}
+
 func PutDocument(url string, document []byte, revision string) common.HttpResponse {
 
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(document))
 	if err != nil {
+		log.Print(err)
 		return common.GetInternalServerErrorResponse()
 	}
 
@@ -110,6 +118,7 @@ func PutDocument(url string, document []byte, revision string) common.HttpRespon
 	}
 	resp, err := netClient.Do(req)
 	if err != nil {
+		log.Print(err)
 		return common.GetInternalServerErrorResponse()
 	}
 	defer resp.Body.Close()
@@ -130,6 +139,6 @@ func BuildGetUrl(dbConfig *config.DBConfig, id string) string {
 
 func BuildUrl(dbConfig *config.DBConfig) string {
 	var getDocUrl string
-	getDocUrl = dbConfig.Host + ":" + strconv.Itoa(dbConfig.Port) + "/" + dbConfig.Name
+	getDocUrl = dbConfig.Protocol + "://" + dbConfig.Host + ":" + strconv.Itoa(dbConfig.Port) + "/" + dbConfig.Name
 	return getDocUrl
 }
