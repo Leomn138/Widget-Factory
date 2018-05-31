@@ -6,8 +6,7 @@ A RESTful API example for a widget factory application with Go
 # Download this project
 go get github.com/Leomn138/Widget-Factory
 ```
-# Download and Install the latest version of Apache CouchDb
-http://couchdb.apache.org/#download
+Set up the latest version of Apache CouchDb on http://couchdb.apache.org/#download
 
 Before running API server, you should set the database config with yours on [config.go](https://github.com/Leomn138/Widget-Factory/config/config.go).
 
