@@ -1,22 +1,37 @@
 # Go Widget Factory REST API
-A RESTful API example for a simple widget factory application with Go
+A RESTful API example for a widget factory application with Go
 
 ## Installation & Run
 ```bash
 # Download this project
 go get github.com/Leomn138/Widget-Factory
 ```
+# Download and Install the latest version of Apache CouchDb
+http://couchdb.apache.org/#download
 
-Before running API server, you should set the database config with yours or set the your database config with my values on [config.go](https://github.com/Leomn138/Widget-Factory/blob/master/config/config.go)
+Before running API server, you should set the database config with yours or set the your database config with my values on [config.go](https://github.com/Leomn138/Widget-Factory/config/config.go).
+
+You should also set the port the application will be running and the auth secret.
+
 ```go
 func GetConfig() *Config {
+
 	return &Config{
-		DB: &DBConfig{
-			Dialect:  "mysql",
-			Username: "guest",
-			Password: "Guest0000!",
-			Name:     "todoapp",
-			Charset:  "utf8",
+		UserDBConfig: &DBConfig{
+			Name: "users",
+			Port: 5984,
+			Host: "127.0.0.1",
+			Protocol: "http",
+		},
+		WidgetDBConfig: &DBConfig{
+			Name: "widgets",
+			Port: 5984,
+			Host: "127.0.0.1",
+			Protocol: "http",
+		},
+		Port: ":8000",
+		Auth: &Auth {
+			Secret: "secret",
 		},
 	}
 }
@@ -36,13 +51,15 @@ go build
 ├── app
 │   ├── app.go
 │   ├── handler          // Our API core handlers
-│   │   ├── common.go    // Common response functions
-│   │   ├── users.go     // APIs for User model
-│   │   └── widgets.go   // APIs for Widget model
-│   └── model
-│       └── model.go     // Models for our application
-├── config
-│   └── config.go        // Configuration
+│   │   ├── auth.go      // Auth functions
+│   │   ├── users.go     // APIs for Users
+│   │   └── widgets.go   // APIs for Widgets
+│   ├── repository
+│   │   └── couchdb.go   // CouchDb operations for our application
+│   ├── common
+│   │   └──common.go	 // Common response functions
+│   └── config
+│       └── config.go        // Configuration
 └── main.go
 ```
 
@@ -62,12 +79,3 @@ go build
 * `GET` : Get a widget
 * `PUT` : Update a widget
 
-## Todo
-
-- [x] Support basic REST APIs.
-- [x] Support Authentication with user for securing the APIs.
-- [ ] Make convenient wrappers for creating API handlers.
-- [ ] Write the tests for all APIs.
-- [x] Organize the code with packages
-- [ ] Make docs with GoDoc
-- [ ] Building a deployment process 
