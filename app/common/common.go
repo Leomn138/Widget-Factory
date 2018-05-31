@@ -1,4 +1,4 @@
-package rest
+package common
 
 type HttpResponse struct {
 	Code int

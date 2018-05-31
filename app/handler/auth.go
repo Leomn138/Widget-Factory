@@ -1,4 +1,4 @@
-package service
+package handler
 
 import (
 	"net/http"
@@ -6,6 +6,7 @@ import (
 	"strings"
 	"fmt"
 	"time"
+	"widgetFactory/config"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/context"
 )
@@ -19,9 +20,7 @@ type JwtToken struct {
 	Token string `json:"token"`
 }
 
-var signingKey = "secret"
-
-func CreateTokenEndpoint(w http.ResponseWriter, req *http.Request) {
+func CreateToken(auth *config.Auth, w http.ResponseWriter, req *http.Request) {
 	var credentials Credentials
 	error := json.NewDecoder(req.Body).Decode(&credentials)
 	if error != nil {
@@ -34,7 +33,7 @@ func CreateTokenEndpoint(w http.ResponseWriter, req *http.Request) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, error := token.SignedString([]byte(signingKey))
+	tokenString, error := token.SignedString([]byte(auth.Secret))
 	if error != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -43,7 +42,7 @@ func CreateTokenEndpoint(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(JwtToken{Token: tokenString})
 }
 
-func ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func ValidateMiddleware(auth *config.Auth, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		authorizationHeader := req.Header.Get("authorization")
 		if authorizationHeader != "" {
@@ -53,7 +52,7 @@ func ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
 					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 						return nil, fmt.Errorf("There was an error")
 					}
-					return []byte(signingKey), nil
+					return []byte(auth.Secret), nil
 				})
 				if error != nil {
 					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

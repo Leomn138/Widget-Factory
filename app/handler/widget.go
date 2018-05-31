@@ -1,21 +1,16 @@
-package service
+package handler
 
 import (
 	"net/http"
 	"encoding/json"
 	"io/ioutil"
-	"widgetFactory/repository"
-
+	"widgetFactory/app/repository"
+	"widgetFactory/config"
 	"github.com/gorilla/mux"
 )
 
-const (
-	databaseName = "widgets"
-	documentType = "Widget"
-)
-
-func GetWidgets(w http.ResponseWriter, r *http.Request) {
-	widgetList, response := repository.GetAllDocs(databaseName)
+func GetAllWidgets(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Request) {
+	widgetList, response := repository.GetAllDocs(dbConfig)
 	if response.Success == false {
 		http.Error(w, http.StatusText(response.Code), response.Code)
 		return
@@ -23,12 +18,12 @@ func GetWidgets(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(widgetList)
 }
 
-func GetWidget(w http.ResponseWriter, r *http.Request) {
+func GetWidget(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	searchId := params["id"]
 
 	deleteSettings := true
-	widgetMap, response := repository.GetDocument(databaseName, documentType, searchId, deleteSettings)
+	widgetMap, response := repository.GetDocument(dbConfig, searchId, deleteSettings)
 	if response.Success == false {
 		http.Error(w, http.StatusText(response.Code), response.Code)
 		return
@@ -37,7 +32,7 @@ func GetWidget(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func CreateWidget(w http.ResponseWriter, r *http.Request) {
+func CreateWidget(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Request) {
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -52,7 +47,7 @@ func CreateWidget(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := repository.CreateDocument(databaseName, documentType, widgetMap["id"].(string), widgetMap)
+	response := repository.CreateDocument(dbConfig, widgetMap["id"].(string), widgetMap)
 	if response.Success == false {
 		http.Error(w, http.StatusText(response.Code), response.Code)
 		return
@@ -61,7 +56,7 @@ func CreateWidget(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(http.StatusText(http.StatusOK)))
 }
 
-func UpdateWidget(w http.ResponseWriter, r *http.Request) {
+func UpdateWidget(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Request) {
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -78,7 +73,7 @@ func UpdateWidget(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	id := params["id"]
-	response := repository.UpdateDocument(databaseName, documentType, id, widgetMap)
+	response := repository.UpdateDocument(dbConfig, id, widgetMap)
 	if response.Success == false {
 		http.Error(w, http.StatusText(response.Code), response.Code)
 		return

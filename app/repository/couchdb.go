@@ -7,23 +7,24 @@ import (
 	"time"
 	"encoding/json"
 	"bytes"
-	"widgetFactory/utils"
+	"widgetFactory/app/common"
+	"widgetFactory/config"
 )
 const (
-	couchdbHost = "http://127.0.0.1:5984"
-	allDocsSufix = "/_all_docs?include_docs="
+
+	allDocsSufix = "_all_docs?include_docs="
 )
 
-func GetAllDocs(databaseName string) ([] map[string] interface{}, rest.HttpResponse){
+func GetAllDocs(dbConfig *config.DBConfig) ([] map[string] interface{}, common.HttpResponse){
 	var docList [] map[string] interface{}
 	includeDocs := true
-	var allDocsUrl = BuildAllDocsUrl(databaseName, includeDocs)
+	var allDocsUrl = BuildAllDocsUrl(dbConfig, includeDocs)
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
 	resp, err := netClient.Get(allDocsUrl)
 	if err != nil {
-		return docList, rest.GetInternalServerErrorResponse()
+		return docList, common.GetInternalServerErrorResponse()
 	}
 
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -35,50 +36,50 @@ func GetAllDocs(databaseName string) ([] map[string] interface{}, rest.HttpRespo
 	for i, couchdbDoc := range couchdbAllDocs["rows"].([] map[string] interface{}) {
 		docList[i] = couchdbDoc["doc"].(map[string] interface{})
 	}
-	return docList, rest.GetSuccessResponse()
+	return docList, common.GetSuccessResponse()
 }
 
-func GetDocument(databaseName string, documentType string, id string, deleteSettings bool) (map[string] interface{}, rest.HttpResponse) {
+func GetDocument(dbConfig *config.DBConfig, id string, deleteSettings bool) (map[string] interface{}, common.HttpResponse) {
 	var documentMap map[string] interface{}
 
-	url := BuildGetUrl(databaseName, documentType, id)
+	url := BuildGetUrl(dbConfig, id)
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
 	response, err := netClient.Get(url)
 	if err != nil {
-		return documentMap, rest.GetInternalServerErrorResponse()
+		return documentMap, common.GetInternalServerErrorResponse()
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return documentMap, rest.GetInternalServerErrorResponse()
+		return documentMap, common.GetInternalServerErrorResponse()
 	}
 
 	json.Unmarshal(body, &documentMap)
 
 	if (len(documentMap) == 0) {
-		return documentMap, rest.GetNotFoundResponse()
+		return documentMap, common.GetNotFoundResponse()
 	}
 
 	if deleteSettings == true {
 		delete(documentMap, "_id")
 		delete(documentMap, "_rev");
 	}
-	return documentMap, rest.GetSuccessResponse()
+	return documentMap, common.GetSuccessResponse()
 }
 
-func CreateDocument(databaseName string, documentType string, id string, newDocumentMap map[string] interface{}) rest.HttpResponse {
-	url := BuildCreateUrl(databaseName)
-	newDocumentMap["_id"] = documentType + "-" + id
+func CreateDocument(dbConfig *config.DBConfig, id string, newDocumentMap map[string] interface{}) common.HttpResponse {
+	url := BuildUrl(dbConfig)
+	newDocumentMap["_id"] = id
 	document, _ := json.Marshal(newDocumentMap)
 	return PutDocument(url, document, "")
 }
 
-func UpdateDocument(databaseName string, documentType string, id string, newDocumentMap map[string] interface{}) rest.HttpResponse {
-	url := BuildGetUrl(databaseName, documentType, id)
+func UpdateDocument(dbConfig *config.DBConfig, id string, newDocumentMap map[string] interface{}) common.HttpResponse {
+	url := BuildGetUrl(dbConfig, id)
 	deleteSettings := false
-	oldDocumentMap, response := GetDocument(databaseName, documentType, id, deleteSettings)
+	oldDocumentMap, response := GetDocument(dbConfig, id, deleteSettings)
 	if response.Success == false {
 		return response
 	}
@@ -93,11 +94,11 @@ func UpdateDocument(databaseName string, documentType string, id string, newDocu
 	return PutDocument(url, document, revision)
 }
 
-func PutDocument(url string, document []byte, revision string) rest.HttpResponse {
+func PutDocument(url string, document []byte, revision string) common.HttpResponse {
 
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(document))
 	if err != nil {
-		return rest.GetInternalServerErrorResponse()
+		return common.GetInternalServerErrorResponse()
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -109,26 +110,26 @@ func PutDocument(url string, document []byte, revision string) rest.HttpResponse
 	}
 	resp, err := netClient.Do(req)
 	if err != nil {
-		return rest.GetInternalServerErrorResponse()
+		return common.GetInternalServerErrorResponse()
 	}
 	defer resp.Body.Close()
-	return rest.GetSuccessResponse()
+	return common.GetSuccessResponse()
 }
 
-func BuildAllDocsUrl(databaseName string, includeDocs bool) string {
+func BuildAllDocsUrl(dbConfig *config.DBConfig, includeDocs bool) string {
 	var allDocsUrl string
-	allDocsUrl = couchdbHost + "/" + databaseName + allDocsSufix + strconv.FormatBool(includeDocs)
+	allDocsUrl = BuildUrl(dbConfig) + "/" + allDocsSufix + strconv.FormatBool(includeDocs)
 	return allDocsUrl
 }
 
-func BuildGetUrl(databaseName string, documentType string, id string) string {
+func BuildGetUrl(dbConfig *config.DBConfig, id string) string {
 	var getDocUrl string
-	getDocUrl = couchdbHost + "/" + databaseName + "/" + documentType + "-" + id
+	getDocUrl = BuildUrl(dbConfig) + "/" + id
 	return getDocUrl
 }
 
-func BuildCreateUrl(databaseName string) string {
+func BuildUrl(dbConfig *config.DBConfig) string {
 	var getDocUrl string
-	getDocUrl = couchdbHost + "/" + databaseName
+	getDocUrl = dbConfig.Host + ":" + strconv.Itoa(dbConfig.Port) + "/" + dbConfig.Name
 	return getDocUrl
 }
