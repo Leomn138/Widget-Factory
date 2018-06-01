@@ -38,7 +38,7 @@ func GetConfig() *Config {
 
 ```bash
 # Build and Run
-cd Widget-Factory
+cd $GOPATH/src/github.com/Leomn138/Widget-Factory
 go build
 ./Widget-Factory
 
