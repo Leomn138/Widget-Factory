@@ -3,9 +3,9 @@ package app
 import (
 	"log"
 	"net/http"
-	"github.com/Leomn138/Widget-Factory/blob/master/app/handler"
-	"github.com/Leomn138/Widget-Factory/blob/master/app/repository"
-	"github.com/Leomn138/Widget-Factory/blob/master/config"
+	"github.com/Leomn138/Widget-Factory/app/handler"
+	"github.com/Leomn138/Widget-Factory/app/repository"
+	"github.com/Leomn138/Widget-Factory/config"
 	"github.com/gorilla/mux"
 )
 type App struct {

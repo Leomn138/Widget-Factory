@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Leomn138/Widget-Factory/blob/master/app"
-	"github.com/Leomn138/Widget-Factory/blob/master/config"
+	"github.com/Leomn138/Widget-Factory/app"
+	"github.com/Leomn138/Widget-Factory/config"
 )
 func main() {
 
