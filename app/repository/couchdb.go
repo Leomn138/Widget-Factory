@@ -9,11 +9,22 @@ import (
 	"bytes"
 	"widgetFactory/app/common"
 	"widgetFactory/config"
-	"log"
 )
 const (
 	allDocsSufix = "_all_docs?include_docs="
 )
+
+type CouchDbAllDocs struct {
+	TotalRows int64 `json:"total_rows"`
+	Offset int64 `json:"offset"`
+	Rows []CouchDbAllDocsRow `json:"rows"`
+}
+type CouchDbAllDocsRow struct {
+	Id string `json:"id"`
+	Key string `json:"key"`
+	Value interface {} `json:"value"`
+	Doc map[string] interface {} `json:"doc"`
+}
 
 func GetAllDocs(dbConfig *config.DBConfig) ([] map[string] interface{}, common.HttpResponse){
 	var docList [] map[string] interface{}
@@ -29,12 +40,13 @@ func GetAllDocs(dbConfig *config.DBConfig) ([] map[string] interface{}, common.H
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var couchdbAllDocs map[string] interface {}
+	var couchdbAllDocs CouchDbAllDocs
 	json.Unmarshal(body, &couchdbAllDocs)
 
-	docList = make([] map[string] interface{}, len(couchdbAllDocs["rows"].([] map[string] interface{})))
-	for i, couchdbDoc := range couchdbAllDocs["rows"].([] map[string] interface{}) {
-		docList[i] = couchdbDoc["doc"].(map[string] interface{})
+	docList = make([]map[string] interface {}, len(couchdbAllDocs.Rows))
+
+	for i, couchdbDoc := range couchdbAllDocs.Rows {
+		docList[i] = couchdbDoc.Doc
 	}
 	return docList, common.GetSuccessResponse()
 }
@@ -70,9 +82,12 @@ func GetDocument(dbConfig *config.DBConfig, id string, deleteSettings bool) (map
 }
 
 func CreateDocument(dbConfig *config.DBConfig, id string, newDocumentMap map[string] interface{}) common.HttpResponse {
-	url := BuildUrl(dbConfig)
+	url := BuildGetUrl(dbConfig, id)
 	newDocumentMap["_id"] = id
-	document, _ := json.Marshal(newDocumentMap)
+	document, err := json.Marshal(newDocumentMap)
+	if err != nil {
+		return common.GetInternalServerErrorResponse()
+	}
 	return PutDocument(url, document, "")
 }
 
@@ -96,16 +111,13 @@ func UpdateDocument(dbConfig *config.DBConfig, id string, newDocumentMap map[str
 
 func CreateDatabaseIfNotExists(dbConfig *config.DBConfig){
 	url := BuildUrl(dbConfig)
-	log.Print(url)
-	response := PutDocument(url, []byte{}, "")
-	log.Print(response.Message)
+	PutDocument(url, []byte{}, "")
 }
 
 func PutDocument(url string, document []byte, revision string) common.HttpResponse {
 
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(document))
 	if err != nil {
-		log.Print(err)
 		return common.GetInternalServerErrorResponse()
 	}
 
@@ -117,8 +129,24 @@ func PutDocument(url string, document []byte, revision string) common.HttpRespon
 		Timeout: time.Second * 10,
 	}
 	resp, err := netClient.Do(req)
+
+
 	if err != nil {
-		log.Print(err)
+		return common.GetInternalServerErrorResponse()
+	}
+	var documentMap map [string]interface{}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return common.GetInternalServerErrorResponse()
+	}
+
+	json.Unmarshal(body, &documentMap)
+
+	if documentMap["error"] != nil {
+		if (documentMap["error"].(string) == "conflict"){
+			return common.GetConflictResponse()
+		}
+
 		return common.GetInternalServerErrorResponse()
 	}
 	defer resp.Body.Close()
