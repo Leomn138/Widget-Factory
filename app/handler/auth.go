@@ -55,7 +55,7 @@ func ValidateMiddleware(auth *config.Auth, next http.HandlerFunc) http.HandlerFu
 					return []byte(auth.Secret), nil
 				})
 				if error != nil {
-					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+					http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 					return
 				}
 				if token.Valid {
