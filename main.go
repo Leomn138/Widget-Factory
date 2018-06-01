@@ -6,11 +6,6 @@ import (
 	"widgetFactory/config"
 	//"github.com/Leomn138/Widget-Factory/config"
 )
-
-const (
-	port = ":8000"
-)
-
 func main() {
 
 	config := config.GetConfig()
