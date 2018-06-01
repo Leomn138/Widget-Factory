@@ -71,8 +71,8 @@ func ValidateMiddleware(auth *config.Auth, next http.HandlerFunc) http.HandlerFu
 				}
 			}
 		} else {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(http.StatusText(http.StatusBadRequest)))
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 			return
 		}
 	})
