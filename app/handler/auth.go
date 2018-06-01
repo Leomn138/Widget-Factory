@@ -24,7 +24,8 @@ func CreateToken(auth *config.Auth, w http.ResponseWriter, req *http.Request) {
 	var credentials Credentials
 	error := json.NewDecoder(req.Body).Decode(&credentials)
 	if error != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(http.StatusText(http.StatusBadRequest)))
 		return
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -35,7 +36,8 @@ func CreateToken(auth *config.Auth, w http.ResponseWriter, req *http.Request) {
 
 	tokenString, error := token.SignedString([]byte(auth.Secret))
 	if error != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(http.StatusText(http.StatusInternalServerError)))
 		return
 	}
 
@@ -55,19 +57,22 @@ func ValidateMiddleware(auth *config.Auth, next http.HandlerFunc) http.HandlerFu
 					return []byte(auth.Secret), nil
 				})
 				if error != nil {
-					http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 					return
 				}
 				if token.Valid {
 					context.Set(req, "decoded", token.Claims)
 					next(w, req)
 				} else {
-					http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 					return
 				}
 			}
 		} else {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(http.StatusText(http.StatusBadRequest)))
 			return
 		}
 	})
