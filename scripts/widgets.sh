@@ -1,0 +1,12 @@
+curl -X PUT http://127.0.0.1:5984/widgets/1 -d '{"id":1,"name":"Losenoidenbdsfkv","color":"purple","price":"9.00","inventory":1001,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/2 -d '{"id":2,"name":"Rowlow","color":"red","price":"3.00","inventory":7,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/3 -d '{"id":3,"name":"Printure","color":"green","price":"5.55","inventory":18,"melts":false}';
+curl -X PUT http://127.0.0.1:5984/widgets/4 -d '{"id":4,"name":"Claster","color":"off-white","price":"123.06","inventory":9,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/5 -d '{"id":5,"name":"Pepelexa hi","color":"purple","price":"0.99","inventory":0,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/6 -d '{"id":6,"name":"Dropellet","color":"speckled","price":"16.00","inventory":99,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/7 -d '{"id":7,"name":"Jeebus","color":"depends on the viewing angle","price":"18.11","inventory":36,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/8 -d '{"id":8,"name":"Nodile","color":"red","price":"50.00","inventory":20,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/9 -d '{"id":9,"name":"Kaloobon","color":"white","price":"8.00","inventory":40,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/10 -d '{"id":10,"name":"Bioyino","color":"turtle-shell","price":"90.12","inventory":3,"melts":true}';
+curl -X PUT http://127.0.0.1:5984/widgets/11 -d '{"id":11,"name":"Dizoolexa","color":"magenta","price":"67.23","inventory":976,"melts":false}';
+curl -X PUT http://127.0.0.1:5984/widgets/12 -d '{"id":12,"name":"Skippy","color":"green","price":"0.01","inventory":404,"melts":true}';

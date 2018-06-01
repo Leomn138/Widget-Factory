@@ -56,9 +56,12 @@ go build
 │   ├── repository
 │   │   └── couchdb.go   // CouchDb operations for our application
 │   ├── common
-│   │   └──common.go	 // Common response functions
+│   │   └──common.go	   // Common response functions
 │   └── config
-│       └── config.go        // Configuration
+│       └── config.go    // Configuration
+├── scripts
+    ├── users.sh         // add users on database
+    └── widgets.sh       // add widgets on database
 └── main.go
 ```
 
