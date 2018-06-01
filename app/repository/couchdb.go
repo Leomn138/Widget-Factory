@@ -7,8 +7,8 @@ import (
 	"time"
 	"encoding/json"
 	"bytes"
-	"widgetFactory/app/common"
-	"widgetFactory/config"
+	"github.com/Leomn138/Widget-Factory/blob/master/app/common"
+	"github.com/Leomn138/Widget-Factory/blob/master/config"
 )
 const (
 	allDocsSufix = "_all_docs?include_docs="

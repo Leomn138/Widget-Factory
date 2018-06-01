@@ -6,7 +6,7 @@ import (
 	"strings"
 	"fmt"
 	"time"
-	"widgetFactory/config"
+	"github.com/Leomn138/Widget-Factory/blob/master/config"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/context"
 )

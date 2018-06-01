@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 	"encoding/json"
-	"widgetFactory/app/repository"
-	"widgetFactory/config"
+	"github.com/Leomn138/Widget-Factory/blob/master/app/repository"
+	"github.com/Leomn138/Widget-Factory/blob/master/config"
 	"github.com/gorilla/mux"
 )
 
