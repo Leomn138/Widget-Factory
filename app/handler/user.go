@@ -11,7 +11,7 @@ import (
 func GetAllUsers(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Request) {
 	userList, response := repository.GetAllDocs(dbConfig)
 	if response.Success == false {
-		w.WriteHeader(http.response.Code)
+		w.WriteHeader(response.Code)
 		w.Write([]byte(http.StatusText(response.Code)))
 		return
 	}
@@ -25,7 +25,7 @@ func GetUser(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Request) 
 	deleteSettings := true
 	widgetMap, response := repository.GetDocument(dbConfig, searchId, deleteSettings)
 	if response.Success == false {
-		w.WriteHeader(http.response.Code)
+		w.WriteHeader(response.Code)
 		w.Write([]byte(http.StatusText(response.Code)))
 		return
 	}

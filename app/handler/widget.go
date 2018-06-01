@@ -14,7 +14,7 @@ import (
 func GetAllWidgets(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Request) {
 	widgetList, response := repository.GetAllDocs(dbConfig)
 	if response.Success == false {
-		w.WriteHeader(http.response.Code)
+		w.WriteHeader(response.Code)
 		w.Write([]byte(http.StatusText(response.Code)))
 		return
 	}
@@ -28,7 +28,7 @@ func GetWidget(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Request
 	deleteSettings := true
 	widgetMap, response := repository.GetDocument(dbConfig, searchId, deleteSettings)
 	if response.Success == false {
-		w.WriteHeader(http.response.Code)
+		w.WriteHeader(response.Code)
 		w.Write([]byte(http.StatusText(response.Code)))
 		return
 	}
@@ -59,7 +59,7 @@ func CreateWidget(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Requ
 
 	response := repository.CreateDocument(dbConfig, strconv.FormatInt(int64(widgetMap["id"].(float64)), 10), widgetMap)
 	if response.Success == false {
-		w.WriteHeader(http.response.Code)
+		w.WriteHeader(response.Code)
 		w.Write([]byte(http.StatusText(response.Code)))
 		return
 	}
@@ -93,7 +93,7 @@ func UpdateWidget(dbConfig *config.DBConfig, w http.ResponseWriter, r *http.Requ
 	id := params["id"]
 	response := repository.UpdateDocument(dbConfig, id, widgetMap)
 	if response.Success == false {
-		w.WriteHeader(http.response.Code)
+		w.WriteHeader(response.Code)
 		w.Write([]byte(http.StatusText(response.Code)))
 		return
 	}
