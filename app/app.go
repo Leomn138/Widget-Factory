@@ -26,15 +26,17 @@ func (a *App) Initialize(Config *config.Config) {
 }
 
 func (a *App) setRouters() {
-	a.Post("/auth", a.CreateToken)
+	a.Post("/auth", CreateToken(logEntry, a.Auth))
 
-	a.Get("/widgets", handler.ValidateMiddleware(a.Auth, a.GetAllWidgets))
-	a.Post("/widgets", handler.ValidateMiddleware(a.Auth, a.CreateWidget))
-	a.Get("/widgets/{id:[0-9]+}", handler.ValidateMiddleware(a.Auth, a.GetWidget))
-	a.Put("/widgets/{id:[0-9]+}", handler.ValidateMiddleware(a.Auth, a.UpdateWidget))
+	a.Get("/widgets", handler.ValidateMiddleware(a.Auth, GetAllWidgets(logEntry, a.WidgetDb)))
 
-	a.Get("/users", handler.ValidateMiddleware(a.Auth, a.GetAllUsers))
-	a.Get("/users/{id:[0-9]+}", handler.ValidateMiddleware(a.Auth, a.GetUser))
+
+	a.Post("/widgets", handler.ValidateMiddleware(a.Auth, CreateWidget(logEntry, a.WidgetDb)))
+	a.Get("/widgets/{id:[0-9]+}", handler.ValidateMiddleware(a.Auth, GetWidget(logEntry, a.WidgetDb)))
+	a.Put("/widgets/{id:[0-9]+}", handler.ValidateMiddleware(a.Auth, UpdateWidget(logEntry, a.WidgetDb)))
+
+	a.Get("/users", handler.ValidateMiddleware(a.Auth, GetAllUsers(logEntry, a.UserDb)))
+	a.Get("/users/{id:[0-9]+}", handler.ValidateMiddleware(a.Auth, GetUser(logEntry, a.UserDb)))
 }
 
 
@@ -53,38 +55,63 @@ func (a *App) Put(path string, f func(w http.ResponseWriter, r *http.Request)) {
 /*
 ** Auth Handlers
  */
-func (a *App) CreateToken(w http.ResponseWriter, r *http.Request) {
-	handler.CreateToken(a.Auth, w, r)
+var CreateToken = func(f http.HandlerFunc, auth *config.Auth) http.HandlerFunc{
+	return func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+		handler.CreateToken(auth, w, r)
+	}
 }
 
 /*
 ** Widgets Handlers
  */
-func (a *App) GetAllWidgets(w http.ResponseWriter, r *http.Request) {
-	handler.GetAllWidgets(a.WidgetDb, w, r)
+var GetAllWidgets = func(f http.HandlerFunc, dbConfig *config.DBConfig) http.HandlerFunc{
+	return func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+		handler.GetAllWidgets(dbConfig, w, r)
+	}
 }
 
-func (a *App) GetWidget(w http.ResponseWriter, r *http.Request) {
-	handler.GetWidget(a.WidgetDb, w, r)
+var GetWidget = func(f http.HandlerFunc, dbConfig *config.DBConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+		handler.GetWidget(dbConfig, w, r)
+	}
 }
 
-func (a *App) UpdateWidget(w http.ResponseWriter, r *http.Request) {
-	handler.UpdateWidget(a.WidgetDb, w, r)
+var UpdateWidget = func(f http.HandlerFunc, dbConfig *config.DBConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+		handler.UpdateWidget(dbConfig, w, r)
+	}
 }
 
-func (a *App) CreateWidget(w http.ResponseWriter, r *http.Request) {
-	handler.CreateWidget(a.WidgetDb, w, r)
+var CreateWidget = func(f http.HandlerFunc, dbConfig *config.DBConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+		handler.CreateWidget(dbConfig, w, r)
+	}
 }
 
 /*
 ** Users Handlers
  */
-func (a *App) GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	handler.GetAllUsers(a.UserDb, w, r)
+var GetAllUsers = func(f http.HandlerFunc, dbConfig *config.DBConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+		handler.GetAllUsers(dbConfig, w, r)
+	}
 }
 
-func (a *App) GetUser(w http.ResponseWriter, r *http.Request) {
-	handler.GetUser(a.UserDb, w, r)
+var GetUser = func(f http.HandlerFunc, dbConfig *config.DBConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+		handler.GetUser(dbConfig, w, r)
+	}
+}
+
+func logEntry(w http.ResponseWriter, r *http.Request) {
+	log.Print("New request from host: " + r.Host)
 }
 
 /*
