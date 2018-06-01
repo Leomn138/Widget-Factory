@@ -6,6 +6,13 @@ type HttpResponse struct {
 	Success bool
 }
 
+func GetConflictResponse() HttpResponse {
+	var httpResponse HttpResponse
+	httpResponse.Code = 409
+	httpResponse.Message = "Conflict"
+	httpResponse.Success = false
+	return httpResponse
+}
 func GetInternalServerErrorResponse() HttpResponse {
 	var httpResponse HttpResponse
 	httpResponse.Code = 500
